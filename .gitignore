@@ -1,0 +1,6 @@
+/.idea
+ticket-service.iml
+ticket-service-api/target/
+ticket-service-api/ticket-service-api.iml
+ticket-service-dao/target/
+ticket-service-dao/ticket-service-dao.iml
