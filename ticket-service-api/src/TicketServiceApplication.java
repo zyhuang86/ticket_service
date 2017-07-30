@@ -20,13 +20,11 @@ public class TicketServiceApplication extends Application<TicketServiceConfigura
 
     @Override
     public void initialize(Bootstrap<TicketServiceConfiguration> bootstrap) {
-        // nothing to do yet
     }
 
     @Override
     public void run(TicketServiceConfiguration configuration,
                     Environment environment) {
-        // instantiations
         SeatDataAccess seatDataAccess = new SeatDataAccess();
         TicketServiceAction ticketServiceAction = new TicketServiceAction(seatDataAccess);
 

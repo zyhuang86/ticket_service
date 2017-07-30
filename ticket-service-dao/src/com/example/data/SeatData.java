@@ -1,4 +1,4 @@
-package com.example.seatData;
+package com.example.data;
 
 import com.example.datatype.SeatInformation;
 import com.example.datatype.SeatReservation;
@@ -27,14 +27,14 @@ public class SeatData {
             seatInformation.setSeatId(seatId);
             seatInformation.setRowNumber(rowNumber);
             seatInformation.setColumnNumber(colNumber);
-            seatInformationMap.put(seatId, seatInformation);
+            seatInformationMap.putIfAbsent(seatId, seatInformation);
 
             SeatReservation seatReservation = new SeatReservation();
             seatReservation.setSeatId(seatId);
             seatReservation.setCustomerEmail("");
             seatReservation.setIsOnHold(false);
             seatReservation.setIsReserved(false);
-            seatAssignmentMap.put(seatId, seatReservation);
+            seatAssignmentMap.putIfAbsent(seatId, seatReservation);
          }
       }
    }

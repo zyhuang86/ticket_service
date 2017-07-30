@@ -1,11 +1,14 @@
 package com.example.dataAccess;
 
 import com.example.datatype.SeatHold;
+import com.example.datatype.SeatInformation;
 import com.example.datatype.SeatReservation;
-import com.example.seatData.SeatData;
+import com.example.data.SeatData;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SeatDataAccess {
    private Map<Integer, SeatReservation> seatAssignmentMap = SeatData.getInstance().getSeatAssignmentMap();
@@ -53,6 +56,16 @@ public class SeatDataAccess {
          seatAssignment.getValue().setIsOnHold(false);
          seatAssignment.getValue().setCustomerEmail("");
       });
+   }
+
+   public List<SeatInformation> getUnreservedSeats() {
+       List<Integer> unreservedSeatIds = seatAssignmentMap.entrySet().stream()
+               .filter(seatAssignment ->
+                       !seatAssignment.getValue().getIsOnHold() &&
+                       !seatAssignment.getValue().getIsReserved())
+       .map(Map.Entry::getKey)
+       .collect(Collectors.toList());
+       return SeatData.getInstance().getSeatInformation(unreservedSeatIds);
    }
 
    public Long getAvailableSeatCount() {
