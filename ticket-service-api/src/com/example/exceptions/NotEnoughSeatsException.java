@@ -1,7 +1,7 @@
 package com.example.exceptions;
 
 public class NotEnoughSeatsException extends Exception {
-   public NotEnoughSeatsException(String message) {
-      super(message);
+   public NotEnoughSeatsException() {
+      super("Number of seats to put on hold exceeds available seat count");
    }
 }

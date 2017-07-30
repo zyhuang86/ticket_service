@@ -5,7 +5,6 @@ import com.example.datatype.SeatInformation;
 import com.example.datatype.SeatReservation;
 import com.example.data.SeatData;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,6 +28,10 @@ public class SeatDataAccess {
       seatHold.setSeatHoldId(seatHoldId);
       seatHold.setSeatInformationList(SeatData.getInstance().getSeatInformation(seatIdsToHold));
       return seatHold;
+   }
+
+   public Boolean areSeatsStillOnHold(Integer seatHoldId) {
+      return seatsOnHoldMap.containsKey(seatHoldId);
    }
 
    public void reserveSeats(Integer seatHoldId, String customerEmail) {
@@ -63,9 +66,16 @@ public class SeatDataAccess {
                .filter(seatAssignment ->
                        !seatAssignment.getValue().getIsOnHold() &&
                        !seatAssignment.getValue().getIsReserved())
-       .map(Map.Entry::getKey)
-       .collect(Collectors.toList());
+               .map(Map.Entry::getKey)
+               .collect(Collectors.toList());
        return SeatData.getInstance().getSeatInformation(unreservedSeatIds);
+   }
+
+   public List<SeatReservation> getOnHoldSeatInfoByHoldId(Integer seatHoldId) {
+      return seatAssignmentMap.entrySet().stream().filter(seatAssignment ->
+              seatsOnHoldMap.get(seatHoldId).contains(seatAssignment.getValue().getSeatId()))
+              .map(Map.Entry::getValue)
+              .collect(Collectors.toList());
    }
 
    public Long getAvailableSeatCount() {

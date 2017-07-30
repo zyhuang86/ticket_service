@@ -3,6 +3,8 @@ package com.example.actions;
 import com.example.dataAccess.SeatDataAccess;
 import com.example.datatype.SeatHold;
 import com.example.datatype.SeatInformation;
+import com.example.exceptions.CustomerEmailMismatchException;
+import com.example.exceptions.InvalidSeatHoldIdException;
 import com.example.exceptions.NotEnoughSeatsException;
 import com.example.interfaces.ITicketService;
 
@@ -18,7 +20,11 @@ import static java.util.stream.Collectors.toMap;
 
 public class TicketServiceAction implements ITicketService {
    private SeatDataAccess seatDataAccess;
-   public TicketServiceAction(SeatDataAccess seatDataAccess) {
+   private ExecutorServiceAction executorServiceAction;
+
+   public TicketServiceAction(SeatDataAccess seatDataAccess,
+                              ExecutorServiceAction executorServiceAction) {
+      this.executorServiceAction = executorServiceAction;
       this.seatDataAccess = seatDataAccess;
    }
 
@@ -28,15 +34,27 @@ public class TicketServiceAction implements ITicketService {
 
    public SeatHold findAndHoldSeats(int numSeats, String customerEmail) throws NotEnoughSeatsException {
       if (numSeats > numSeatsAvailable()) {
-         throw new NotEnoughSeatsException("Number of seats to put on hold exceeds available seat count");
+         throw new NotEnoughSeatsException();
       }
       getBestSeatsAvailable(numSeats);
-      return seatDataAccess.holdSeats(getBestSeatsAvailable(numSeats), customerEmail);
+      SeatHold seatHold = seatDataAccess.holdSeats(getBestSeatsAvailable(numSeats), customerEmail);
+      executorServiceAction.scheduleOnHoldCleanUpTask(seatHold.getSeatHoldId());
+      return seatHold;
    }
 
-   public String reserveSeats(int seatHoldId, String customerEmail) {
+   public String reserveSeats(int seatHoldId, String customerEmail) throws InvalidSeatHoldIdException,
+           CustomerEmailMismatchException {
       String message = "Reservation Complete";
-      seatDataAccess.reserveSeats(seatHoldId, customerEmail);
+      if (seatDataAccess.areSeatsStillOnHold(seatHoldId)) {
+         if (customerEmail.equals(seatDataAccess.getOnHoldSeatInfoByHoldId(seatHoldId).get(0).getCustomerEmail())) {
+            seatDataAccess.reserveSeats(seatHoldId, customerEmail);
+            executorServiceAction.cancelScheduledOnHoldCleanUpTask(seatHoldId);
+         } else {
+            throw new CustomerEmailMismatchException();
+         }
+      } else {
+         throw new InvalidSeatHoldIdException();
+      }
       return message;
    }
 
@@ -44,6 +62,8 @@ public class TicketServiceAction implements ITicketService {
       List<Integer> seatIdsToReturn = new ArrayList<>();
       Map<Integer, List<SeatInformation>> neighboringSeatsGroups = groupedNeighboringSeats();
 
+      // Iterate from rows closest to the stage towards the back until a group of neighboring seats
+      // large enough to accommodate the requested number of seats is found
       for (Map.Entry<Integer, List<SeatInformation>> neighboringSeatGroup : neighboringSeatsGroups.entrySet()) {
          if (neighboringSeatGroup.getValue().size() >= numSeats) {
             List<Integer> seatIds = neighboringSeatGroup.getValue().stream()
@@ -53,6 +73,8 @@ public class TicketServiceAction implements ITicketService {
          }
       }
 
+      // If none of the grouped seats are large enough, find the best possible segmented
+      // seating arrangement by keeping as many of the seats together as possible
       if (seatIdsToReturn.size() == 0) {
          seatIdsToReturn = getBestSegmentedSeats(neighboringSeatsGroups, numSeats);
       }
@@ -74,6 +96,9 @@ public class TicketServiceAction implements ITicketService {
                       (a,b) -> {throw new AssertionError();},
                       LinkedHashMap::new));
 
+      // The goal is to keep as many of the seats together as possible. Therefore, we start from the largest
+      // size of grouped seats and work our way down. When two group of seats are identical in size, the row
+      // towards the front has higher priority.
       for (Map.Entry<Integer, List<SeatInformation>> seatGroup : neighboringSeatsGroupsSortedBySize.entrySet()) {
          if (numberOfSeatsRemaining == 0) {
             break;
@@ -103,7 +128,6 @@ public class TicketServiceAction implements ITicketService {
       Integer groupIdIndex = 0;
       Map<Integer, List<SeatInformation>> groupedNeighboringSeats = new LinkedHashMap<>();
 
-      availableSeats.stream().sorted(Comparator.comparing(SeatInformation::getSeatId));
       while(iterator.hasNext()) {
          SeatInformation seatInformation = (SeatInformation) iterator.next();
 
@@ -128,8 +152,8 @@ public class TicketServiceAction implements ITicketService {
 
    private Boolean areNeighboringSeats(SeatInformation seatInformationA, SeatInformation seatInformationB) {
       Boolean areNeighbors = false;
-      if (seatInformationA.getRowNumber() == seatInformationB.getRowNumber() &&
-              seatInformationA.getColumnNumber() == seatInformationB.getColumnNumber() + 1) {
+      if (seatInformationA.getRowNumber().equals(seatInformationB.getRowNumber()) &&
+              seatInformationA.getColumnNumber().equals(seatInformationB.getColumnNumber() + 1)) {
          areNeighbors = true;
       }
       return areNeighbors;

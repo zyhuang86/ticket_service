@@ -5,24 +5,13 @@ import javax.validation.Valid;
 public class TicketServiceConfiguration extends Configuration {
 
     @Valid
-    private Integer numberOfRows;
+    private Integer maxOnHoldDuration;
 
-    @Valid
-    private Integer numberOfColumns;
-
-    public Integer getNumberOfRows() {
-        return numberOfRows;
+    public Integer getMaxOnHoldDuration() {
+        return maxOnHoldDuration;
     }
 
-    public void setNumberOfRows(Integer numberOfRows) {
-        this.numberOfRows = numberOfRows;
-    }
-
-    public Integer getNumberOfColumns() {
-        return numberOfColumns;
-    }
-
-    public void setNumberOfColumns(Integer numberOfColumns) {
-        this.numberOfColumns = numberOfColumns;
+    public void setMaxOnHoldDuration(Integer maxOnHoldDuration) {
+        this.maxOnHoldDuration = maxOnHoldDuration;
     }
 }

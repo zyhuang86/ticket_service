@@ -1,6 +1,8 @@
 package com.example.services;
 
 import com.example.actions.TicketServiceAction;
+import com.example.exceptions.CustomerEmailMismatchException;
+import com.example.exceptions.InvalidSeatHoldIdException;
 import com.example.exceptions.NotEnoughSeatsException;
 import io.dropwizard.jersey.errors.ErrorMessage;
 
@@ -18,9 +20,9 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class TicketService {
    private TicketServiceAction ticketServiceAction;
-   private final static String EMAIL_REGEX_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+   private final static String EMAIL_REGEX_PATTERN = "^[_A-Za-z0-9-+]+(\\.[_A-Za-z0-9-]+)*@"
                    + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-   private final static String INVALID_EMAIL_MESSSAGE = ": Invalid Email Received";
+   private final static String INVALID_EMAIL_MESSAGE = ": Invalid Email Received";
 
    public TicketService(TicketServiceAction ticketServiceAction) {
       this.ticketServiceAction = ticketServiceAction;
@@ -37,7 +39,7 @@ public class TicketService {
    public Response findAndHoldSeats(@QueryParam("numberOfSeats") @NotNull String numberOfSeats,
                                     @QueryParam("email")
                                     @Pattern(regexp = EMAIL_REGEX_PATTERN,
-                                             message = INVALID_EMAIL_MESSSAGE) String customerEmail) {
+                                             message = INVALID_EMAIL_MESSAGE) String customerEmail) {
       Response response;
       try {
          response = Response.ok(ticketServiceAction.findAndHoldSeats(Integer.valueOf(numberOfSeats),
@@ -57,7 +59,7 @@ public class TicketService {
    public Response findAndReserveSeats(@QueryParam("holdId") @NotNull String holdId,
                                        @QueryParam("email")
                                        @Pattern(regexp = EMAIL_REGEX_PATTERN,
-                                                message = INVALID_EMAIL_MESSSAGE) String customerEmail) {
+                                                message = INVALID_EMAIL_MESSAGE) String customerEmail) {
       Response response;
       try {
          response = Response.ok(ticketServiceAction.reserveSeats(Integer.valueOf(holdId),
@@ -65,6 +67,9 @@ public class TicketService {
       } catch (NumberFormatException exception) {
          response = Response.status(Response.Status.BAD_REQUEST)
                  .entity(new ErrorMessage("Invalid seat hold id received")).build();
+      } catch (InvalidSeatHoldIdException | CustomerEmailMismatchException exception) {
+         response = Response.status(Response.Status.BAD_REQUEST)
+                 .entity(new ErrorMessage(exception.getMessage())).build();
       }
       return response;
    }

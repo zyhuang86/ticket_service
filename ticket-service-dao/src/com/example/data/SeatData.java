@@ -4,6 +4,7 @@ import com.example.datatype.SeatInformation;
 import com.example.datatype.SeatReservation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class SeatData {
    }
 
    public List<SeatInformation> getSeatInformation(List<Integer> seatIds) {
-      List<SeatInformation> seatInformationList = new ArrayList<>();
+      List<SeatInformation> seatInformationList = Collections.synchronizedList(new ArrayList<>());
       seatIds.forEach(seatId -> seatInformationList.add(seatInformationMap.get(seatId)));
       return seatInformationList;
    }

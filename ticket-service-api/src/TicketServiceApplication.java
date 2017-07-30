@@ -1,3 +1,4 @@
+import com.example.actions.ExecutorServiceAction;
 import com.example.actions.TicketServiceAction;
 import com.example.dataAccess.SeatDataAccess;
 import io.dropwizard.Application;
@@ -26,7 +27,10 @@ public class TicketServiceApplication extends Application<TicketServiceConfigura
     public void run(TicketServiceConfiguration configuration,
                     Environment environment) {
         SeatDataAccess seatDataAccess = new SeatDataAccess();
-        TicketServiceAction ticketServiceAction = new TicketServiceAction(seatDataAccess);
+        ExecutorServiceAction executorServiceAction = new ExecutorServiceAction(seatDataAccess,
+                configuration.getMaxOnHoldDuration());
+        TicketServiceAction ticketServiceAction = new TicketServiceAction(seatDataAccess,
+                executorServiceAction);
 
         // register resource now
         environment.jersey().register(new TicketService(ticketServiceAction));

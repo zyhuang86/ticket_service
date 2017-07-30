@@ -1,10 +1,12 @@
 package com.example.datatype;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class SeatReservation {
    private int seatId;
-   private Boolean isOnHold;
-   private Boolean isReserved;
-   private String customerEmail;
+   private AtomicBoolean isOnHold = new AtomicBoolean(false);
+   private AtomicBoolean isReserved = new AtomicBoolean(false);
+   private volatile String customerEmail;
 
    public int getSeatId() {
       return seatId;
@@ -15,19 +17,19 @@ public class SeatReservation {
    }
 
    public Boolean getIsOnHold() {
-      return isOnHold;
+      return isOnHold.get();
    }
 
    public void setIsOnHold(Boolean onHold) {
-      isOnHold = onHold;
+      isOnHold.compareAndSet(!onHold, onHold);
    }
 
    public Boolean getIsReserved() {
-      return isReserved;
+      return isReserved.get();
    }
 
    public void setIsReserved(Boolean reserved) {
-      isReserved = reserved;
+      isOnHold.compareAndSet(!reserved, reserved);
    }
 
    public String getCustomerEmail() {
