@@ -7,9 +7,9 @@ import com.example.exceptions.CustomerEmailMismatchException;
 import com.example.exceptions.InvalidSeatHoldIdException;
 import com.example.exceptions.NotEnoughSeatsException;
 import com.example.interfaces.ITicketService;
-import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toMap;
 
 public class TicketServiceAction implements ITicketService {
-   private final static Logger LOG = Logger.getLogger(TicketServiceAction.class);
    private SeatDataAccess seatDataAccess;
    private ExecutorServiceAction executorServiceAction;
 
@@ -38,7 +37,6 @@ public class TicketServiceAction implements ITicketService {
       if (numSeats > numSeatsAvailable()) {
          throw new NotEnoughSeatsException();
       }
-      getBestSeatsAvailable(numSeats);
       SeatHold seatHold = seatDataAccess.holdSeats(getBestSeatsAvailable(numSeats), customerEmail);
       executorServiceAction.scheduleOnHoldCleanUpTask(seatHold.getSeatHoldId());
       return seatHold;
@@ -91,7 +89,7 @@ public class TicketServiceAction implements ITicketService {
 
       Map<Integer, List<SeatInformation>> neighboringSeatsGroupsSortedBySize = neighboringSeatsGroups.entrySet()
               .stream()
-              .sorted(Comparator.comparingInt(entry -> entry.getValue().size()))
+              .sorted(Map.Entry.comparingByValue(Collections.reverseOrder(Comparator.comparingInt(List::size))))
               .collect(toMap(
                       Map.Entry::getKey,
                       Map.Entry::getValue,

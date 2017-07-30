@@ -9,14 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 
 public class SeatData {
-   private final static Logger LOG = Logger.getLogger(SeatData.class);
+   private final static Logger LOG = Logger.getLogger(SeatData.class.getName());
 
    private static SeatData seatDataInstance;
-   private final static Integer MAX_ROW_COUNT = 9;
-   private final static Integer MAX_COLUMN_COUNT = 9;
+   private final static Integer ROW_COUNT = 9;
+   private final static Integer COLUMN_COUNT = 9;
    private Integer seatHoldIdIndex = 0;
    private Map<Integer, SeatInformation> seatInformationMap = new HashMap<>();
    private Map<Integer, SeatReservation> seatAssignmentMap = new ConcurrentHashMap<>();
@@ -24,8 +24,8 @@ public class SeatData {
 
    private SeatData() {
       int seatIdIndex = 0;
-      for (int rowNumber = 0; rowNumber < MAX_ROW_COUNT; rowNumber++) {
-         for (int colNumber = 0; colNumber < MAX_COLUMN_COUNT; colNumber++) {
+      for (int rowNumber = 0; rowNumber < ROW_COUNT; rowNumber++) {
+         for (int colNumber = 0; colNumber < COLUMN_COUNT; colNumber++) {
             int seatId = seatIdIndex++;
             SeatInformation seatInformation = new SeatInformation();
             seatInformation.setSeatId(seatId);

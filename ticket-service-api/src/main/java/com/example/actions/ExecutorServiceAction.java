@@ -1,7 +1,6 @@
 package com.example.actions;
 
 import com.example.dataAccess.SeatDataAccess;
-import org.apache.log4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,7 +10,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class ExecutorServiceAction {
-   private final static Logger LOG = Logger.getLogger(ExecutorServiceAction.class);
    private Integer maxOnHoldDuration;
    private SeatDataAccess seatDataAccess;
    private Map<Integer, ScheduledFuture> scheduledTaskMap = new ConcurrentHashMap<>();

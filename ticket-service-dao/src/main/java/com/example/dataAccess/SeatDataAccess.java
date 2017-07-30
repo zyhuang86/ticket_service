@@ -4,14 +4,14 @@ import com.example.datatype.SeatHold;
 import com.example.datatype.SeatInformation;
 import com.example.datatype.SeatReservation;
 import com.example.data.SeatData;
-import org.apache.log4j.Logger;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class SeatDataAccess {
-   private final static Logger LOG = Logger.getLogger(SeatDataAccess.class);
+   private final static Logger LOG = Logger.getLogger(SeatDataAccess.class.getName());
    private Map<Integer, SeatReservation> seatAssignmentMap = SeatData.getInstance().getSeatAssignmentMap();
    private Map<Integer, List<Integer>> seatsOnHoldMap = SeatData.getInstance().getSeatsOnHoldMap();
 

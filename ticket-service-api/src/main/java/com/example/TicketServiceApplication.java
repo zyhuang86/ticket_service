@@ -8,10 +8,11 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
 import com.example.services.TicketService;
-import org.apache.log4j.Logger;
+
+import java.util.logging.Logger;
 
 public class TicketServiceApplication extends Application<TicketServiceConfiguration> {
-   private final static Logger LOG = Logger.getLogger(SeatDataAccess.class);
+   private final static Logger LOG = Logger.getLogger(SeatDataAccess.class.getName());
 
    public static void main(String[] args) throws Exception {
       new TicketServiceApplication().run(args);
