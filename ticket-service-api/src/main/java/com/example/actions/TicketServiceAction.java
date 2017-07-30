@@ -7,6 +7,7 @@ import com.example.exceptions.CustomerEmailMismatchException;
 import com.example.exceptions.InvalidSeatHoldIdException;
 import com.example.exceptions.NotEnoughSeatsException;
 import com.example.interfaces.ITicketService;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toMap;
 
 public class TicketServiceAction implements ITicketService {
+   private final static Logger LOG = Logger.getLogger(TicketServiceAction.class);
    private SeatDataAccess seatDataAccess;
    private ExecutorServiceAction executorServiceAction;
 
@@ -60,7 +62,7 @@ public class TicketServiceAction implements ITicketService {
 
    private List<Integer> getBestSeatsAvailable(int numSeats) {
       List<Integer> seatIdsToReturn = new ArrayList<>();
-      Map<Integer, List<SeatInformation>> neighboringSeatsGroups = groupedNeighboringSeats();
+      Map<Integer, List<SeatInformation>> neighboringSeatsGroups = groupNeighboringSeats();
 
       // Iterate from rows closest to the stage towards the back until a group of neighboring seats
       // large enough to accommodate the requested number of seats is found
@@ -83,7 +85,7 @@ public class TicketServiceAction implements ITicketService {
    }
 
    private List<Integer> getBestSegmentedSeats(Map<Integer, List<SeatInformation>> neighboringSeatsGroups,
-                                                    int numSeats) {
+                                               int numSeats) {
       List<Integer> seatIdsToReturn = new ArrayList<>();
       Integer numberOfSeatsRemaining = numSeats;
 
@@ -120,7 +122,7 @@ public class TicketServiceAction implements ITicketService {
       return seatIdsToReturn;
    }
 
-   private Map<Integer, List<SeatInformation>> groupedNeighboringSeats() {
+   private Map<Integer, List<SeatInformation>> groupNeighboringSeats() {
       List<SeatInformation> availableSeats = seatDataAccess.getUnreservedSeats();
       List<SeatInformation> neighboringSeats = new ArrayList<>();
       Iterator iterator = availableSeats.iterator();
@@ -158,5 +160,4 @@ public class TicketServiceAction implements ITicketService {
       }
       return areNeighbors;
    }
-
 }

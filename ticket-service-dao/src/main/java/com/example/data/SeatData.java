@@ -9,11 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.log4j.Logger;
 
 public class SeatData {
+   private final static Logger LOG = Logger.getLogger(SeatData.class);
+
    private static SeatData seatDataInstance;
-   private final static Integer MAX_ROW_COUNT = 3;
-   private final static Integer MAX_COLUMN_COUNT = 3;
+   private final static Integer MAX_ROW_COUNT = 9;
+   private final static Integer MAX_COLUMN_COUNT = 9;
    private Integer seatHoldIdIndex = 0;
    private Map<Integer, SeatInformation> seatInformationMap = new HashMap<>();
    private Map<Integer, SeatReservation> seatAssignmentMap = new ConcurrentHashMap<>();
@@ -38,6 +41,7 @@ public class SeatData {
             seatAssignmentMap.putIfAbsent(seatId, seatReservation);
          }
       }
+      LOG.info("Initial Seating Information populated");
    }
 
    public static SeatData getInstance() {
