@@ -1,3 +1,5 @@
+package com.example;
+
 import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
