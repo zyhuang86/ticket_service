@@ -7,11 +7,9 @@ import com.example.data.SeatData;
 
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class SeatDataAccess {
-   private final static Logger LOG = Logger.getLogger(SeatDataAccess.class.getName());
    private Map<Integer, SeatReservation> seatAssignmentMap = SeatData.getInstance().getSeatAssignmentMap();
    private Map<Integer, List<Integer>> seatsOnHoldMap = SeatData.getInstance().getSeatsOnHoldMap();
 
@@ -53,14 +51,6 @@ public class SeatDataAccess {
          seatAssignmentMap.get(seatId).setCustomerEmail("");
       });
       seatsOnHoldMap.remove(seatHoldId);
-   }
-
-   public void unreserveAllSeats() {
-      seatAssignmentMap.entrySet().forEach(seatAssignment -> {
-         seatAssignment.getValue().setIsReserved(false);
-         seatAssignment.getValue().setIsOnHold(false);
-         seatAssignment.getValue().setCustomerEmail("");
-      });
    }
 
    public List<SeatInformation> getUnreservedSeats() {

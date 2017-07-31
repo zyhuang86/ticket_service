@@ -20,7 +20,7 @@ public class ExecutorServiceAction {
       this.maxOnHoldDuration = maxOnHoldDuration;
    }
 
-   public void scheduleOnHoldCleanUpTask(Integer seatHoldId) {
+   void scheduleOnHoldCleanUpTask(Integer seatHoldId) {
       ScheduledExecutorService scheduledExecutorService =
               Executors.newScheduledThreadPool(1);
       ScheduledFuture scheduledFuture = scheduledExecutorService.schedule(() -> {
@@ -32,7 +32,7 @@ public class ExecutorServiceAction {
       scheduledExecutorService.shutdown();
    }
 
-   public void cancelScheduledOnHoldCleanUpTask(Integer seatHoldId) {
+   void cancelScheduledOnHoldCleanUpTask(Integer seatHoldId) {
       ScheduledFuture scheduledFuture = scheduledTaskMap.get(seatHoldId);
       if (scheduledFuture != null && !scheduledFuture.isDone()) {
          scheduledFuture.cancel(true);
