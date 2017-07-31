@@ -14,15 +14,15 @@ set of neighboring seats to the group before moving down the list.
 
 API
 ---
-The following endpoints are available for interaction with ticker service
+The following endpoints are available for interaction with ticket service
 
-    /ticketService/availableSeatCount
+    GET /ticketService/availableSeatCount
         - Returns an integer
 
-    /ticketService/findAndHoldSeats?numberOfSeats={numberOfSeatsToHold}&email={E-mail address}
+    PUT /ticketService/findAndHoldSeats?numberOfSeats={numberOfSeatsToHold}&email={E-mail address}
         - Returns seatHoldId along with information on the seats placed on hold
 
-    /ticketService/findAndReserveSeats?seatHoldId={seatHoldId}&email={E-mail address}
+    PUT /ticketService/findAndReserveSeats?seatHoldId={seatHoldId}&email={E-mail address}
         - Reserves the seats after placing them on hold
 
 Build & Run
@@ -38,4 +38,11 @@ The build will run both unit tests and integration tests by default, run the fol
 To run the application, provide it with the following program argument
 
     server configuration.yml
+
+To invoke API calls, use a REST client or curl command. Default service port is 8080
+
+Example
+
+    GET http://localhost:8080/ticketService/availableSeatCount
+
 

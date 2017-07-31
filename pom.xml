@@ -27,6 +27,7 @@
       <mockito.version>1.10.19</mockito.version>
       <junit.version>4.12</junit.version>
       <unitils.version>3.4.6</unitils.version>
+      <ticketServiceDao.version>0.0.1-SNAPSHOT</ticketServiceDao.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
    </properties>
 
@@ -57,8 +58,8 @@
    </dependencies>
 
    <modules>
-      <module>ticket-service-api</module>
       <module>ticket-service-dao</module>
+      <module>ticket-service-api</module>
       <module>ticket-service-it</module>
    </modules>
 </project>
