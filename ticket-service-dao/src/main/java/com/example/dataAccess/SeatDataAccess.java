@@ -20,7 +20,7 @@ public class SeatDataAccess {
 
       // put seats on hold
       seatsOnHoldMap.put(seatHoldId, seatIdsToHold);
-      seatIdsToHold.stream().forEach(seatId -> {
+      seatIdsToHold.forEach(seatId -> {
          seatAssignmentMap.get(seatId).setIsOnHold(true);
          seatAssignmentMap.get(seatId).setCustomerEmail(customerEmail);
       });
@@ -38,7 +38,7 @@ public class SeatDataAccess {
 
    public void reserveSeats(Integer seatHoldId, String customerEmail) {
       List<Integer> seatIdsToHold = seatsOnHoldMap.get(seatHoldId);
-      seatIdsToHold.stream().forEach(seatId -> {
+      seatIdsToHold.forEach(seatId -> {
          seatAssignmentMap.get(seatId).setIsOnHold(false);
          seatAssignmentMap.get(seatId).setIsReserved(true);
          seatAssignmentMap.get(seatId).setCustomerEmail(customerEmail);
@@ -47,7 +47,7 @@ public class SeatDataAccess {
 
    public void unholdSeats(Integer seatHoldId) {
       List<Integer> seatIdsToHold = seatsOnHoldMap.get(seatHoldId);
-      seatIdsToHold.stream().forEach(seatId ->{
+      seatIdsToHold.forEach(seatId ->{
          seatAssignmentMap.get(seatId).setIsOnHold(false);
          seatAssignmentMap.get(seatId).setIsReserved(false);
          seatAssignmentMap.get(seatId).setCustomerEmail("");
@@ -56,7 +56,7 @@ public class SeatDataAccess {
    }
 
    public void unreserveAllSeats() {
-      seatAssignmentMap.entrySet().stream().forEach(seatAssignment -> {
+      seatAssignmentMap.entrySet().forEach(seatAssignment -> {
          seatAssignment.getValue().setIsReserved(false);
          seatAssignment.getValue().setIsOnHold(false);
          seatAssignment.getValue().setCustomerEmail("");

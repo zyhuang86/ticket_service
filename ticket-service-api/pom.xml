@@ -12,10 +12,6 @@
    <name>ticket-service-api</name>
    <packaging>jar</packaging>
 
-   <properties>
-      <ticketServiceDao.version>0.0.1-SNAPSHOT</ticketServiceDao.version>
-   </properties>
-
    <dependencies>
       <dependency>
          <groupId>io.dropwizard</groupId>
@@ -23,7 +19,7 @@
          <version>${dropwizard.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.example</groupId>
+         <groupId>com.example</groupId>
          <artifactId>ticket-service-dao</artifactId>
          <version>${ticketServiceDao.version}</version>
       </dependency>
