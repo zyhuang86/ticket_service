@@ -19,4 +19,4 @@ logging:
       archivedFileCount: 7
       timeZone: UTC
       maxFileSize: 10MB
-maxOnHoldDuration: 10
+maxOnHoldDuration: 30
