@@ -12,6 +12,7 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
+            <version>${mavenCompiler.version}</version>
             <configuration>
                <source>1.8</source>
                <target>1.8</target>
@@ -21,10 +22,12 @@
    </build>
 
    <properties>
+      <mavenCompiler.version>3.6.1</mavenCompiler.version>
       <dropwizard.version>1.1.0</dropwizard.version>
       <mockito.version>1.10.19</mockito.version>
       <junit.version>4.12</junit.version>
       <unitils.version>3.4.6</unitils.version>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
    </properties>
 
    <dependencies>
@@ -56,5 +59,6 @@
    <modules>
       <module>ticket-service-api</module>
       <module>ticket-service-dao</module>
+      <module>ticket-service-it</module>
    </modules>
 </project>

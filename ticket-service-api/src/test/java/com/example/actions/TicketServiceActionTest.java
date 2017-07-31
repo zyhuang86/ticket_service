@@ -3,18 +3,26 @@ package com.example.actions;
 import com.example.dataAccess.SeatDataAccess;
 import com.example.datatype.SeatHold;
 import com.example.datatype.SeatInformation;
+import com.example.datatype.SeatReservation;
+import com.example.exceptions.CustomerEmailMismatchException;
+import com.example.exceptions.InvalidSeatHoldIdException;
 import com.example.exceptions.NotEnoughSeatsException;
-import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
@@ -28,10 +36,6 @@ public class TicketServiceActionTest {
 
    private TicketServiceAction ticketServiceAction = new TicketServiceAction(seatDataAccessMock,
            executorServiceActionMock);
-
-   @Before
-   public void init() {
-   }
 
    @Test
    public void ticketServiceAction_testGetNumberOfSeatsAvailable_expectInteger() {
@@ -48,6 +52,7 @@ public class TicketServiceActionTest {
       // all seats available, reserve 2, expect to put first 2 seats in the first row on hold
       final List<Integer> expectedFirstRowSeatIdsToHold = Arrays.asList(0, 1);
       testAndVerifyFindAndHoldSeat(expectedFirstRowSeatIdsToHold, 2);
+      verify(executorServiceActionMock, times(1)).scheduleOnHoldCleanUpTask(any());
 
       // 2 seats taken, reserve 2, expect to put first 2 seats in the second row on hold
       seatInformationList = new ArrayList<>(seatInformationList.stream().filter(seatInfo ->
@@ -71,14 +76,54 @@ public class TicketServiceActionTest {
               !expectedSegmentedRowSeatIdsToHold.contains(seatInfo.getSeatId()))
               .collect(Collectors.toList()));
       when(seatDataAccessMock.getUnreservedSeats()).thenReturn(seatInformationList);
-      final List<Integer> last2SeatIds = Arrays.asList(5);
-      testAndVerifyFindAndHoldSeat(last2SeatIds, 1);
+      final List<Integer> lastSeatId = Arrays.asList(5);
+      testAndVerifyFindAndHoldSeat(lastSeatId, 1);
    }
 
    @Test(expected = NotEnoughSeatsException.class)
    public void ticketServiceAction_testFindAndHoldSeatsNotEnoughSeats_expectException() throws Exception {
       resetSeatInfoList();
       ticketServiceAction.findAndHoldSeats(seatInformationList.size() + 1, CUSTOMER_EMAIL);
+   }
+
+   @Test
+   public void ticketServiceAction_testReserveSeatsSuccess_ExpectConfirmationMessage() throws Exception {
+      Integer seatHoldId = 1;
+      when(seatDataAccessMock.areSeatsStillOnHold(eq(seatHoldId))).thenReturn(true);
+      SeatReservation seatReservation = new SeatReservation();
+      seatReservation.setIsOnHold(true);
+      seatReservation.setCustomerEmail(CUSTOMER_EMAIL);
+      seatReservation.setSeatId(1);
+      when(seatDataAccessMock.getOnHoldSeatInfoByHoldId(eq(seatHoldId))).thenReturn(
+              Arrays.asList(seatReservation));
+
+      String message = ticketServiceAction.reserveSeats(seatHoldId, CUSTOMER_EMAIL);
+      assertNotNull(message);
+      ArgumentCaptor<Integer> holdId = ArgumentCaptor.forClass(Integer.class);
+      ArgumentCaptor<String> email = ArgumentCaptor.forClass(String.class);
+      verify(seatDataAccessMock, times(1)).reserveSeats(holdId.capture(),
+              email.capture());
+      assertEquals(seatHoldId, holdId.getValue());
+      assertEquals(CUSTOMER_EMAIL, email.getValue());
+      verify(executorServiceActionMock, times(1)).cancelScheduledOnHoldCleanUpTask(anyInt());
+   }
+
+   @Test(expected = CustomerEmailMismatchException.class)
+   public void ticketServiceAction_testReserveSeatEmailMismatch_expectException() throws Exception {
+      when(seatDataAccessMock.areSeatsStillOnHold(anyInt())).thenReturn(true);
+      SeatReservation seatReservation = new SeatReservation();
+      seatReservation.setIsOnHold(true);
+      seatReservation.setCustomerEmail("differentemail@email.com");
+      seatReservation.setSeatId(1);
+      when(seatDataAccessMock.getOnHoldSeatInfoByHoldId(anyInt())).thenReturn(
+              Arrays.asList(seatReservation));
+      ticketServiceAction.reserveSeats(1, CUSTOMER_EMAIL);
+   }
+
+   @Test(expected = InvalidSeatHoldIdException.class)
+   public void ticketServiceAction_testReserveSeatInvalidSeatHoldId_expectException() throws Exception {
+      when(seatDataAccessMock.areSeatsStillOnHold(anyInt())).thenReturn(false);
+      ticketServiceAction.reserveSeats(1, CUSTOMER_EMAIL);
    }
 
    private void testAndVerifyFindAndHoldSeat(List<Integer> expectedSeatIdsToHold,
@@ -93,7 +138,7 @@ public class TicketServiceActionTest {
               receivedSeatHoldId);
    }
 
-   private List<SeatInformation> generateSeatInformation() {
+   private void generateSeatInformation() {
       int seatIdIndex = 0;
       for (int rowNumber = 0; rowNumber < ROW_COUNT; rowNumber++) {
          for (int colNumber = 0; colNumber < COLUMN_COUNT; colNumber++) {
@@ -105,7 +150,6 @@ public class TicketServiceActionTest {
             seatInformationList.add(seatInformation);
          }
       }
-      return seatInformationList;
    }
 
    private SeatHold createSeatHold(Integer seatHoldId, List<Integer> seatIdList) {

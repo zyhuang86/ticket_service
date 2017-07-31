@@ -1,0 +1,2 @@
+ticketServiceBaseUrl: http://localhost:8080
+maxOnHoldDuration: 5
